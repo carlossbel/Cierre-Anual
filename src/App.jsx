@@ -331,13 +331,6 @@ function Dashboard({ usuario }) {
         </table>
       </section>
 
-      <footer className="footer">
-        <div className="leyenda">
-          <span><span className="punto punto--verde"></span> Aún no cierra</span>
-          <span><span className="punto punto--amarillo"></span> Próximo (≤ {DIAS_PROXIMO} días)</span>
-          <span><span className="punto punto--rojo"></span> En cierre o vencido</span>
-        </div>
-      </footer>
     </div>
   )
 }
