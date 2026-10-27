@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   collection,
   addDoc,
+  updateDoc,
   onSnapshot,
   deleteDoc,
   doc,
@@ -53,8 +54,11 @@ function Semaforo({ color }) {
 function Dashboard({ usuario }) {
   const [cliente, setCliente] = useState('')
   const [fecha, setFecha] = useState('')
+  const [editandoId, setEditandoId] = useState(null)
   const [registros, setRegistros] = useState([])
   const [cargando, setCargando] = useState(false)
+
+  const editando = editandoId !== null
 
   useEffect(() => {
     const q = query(collection(db, 'cierres'), orderBy('fecha', 'asc'))
@@ -65,25 +69,54 @@ function Dashboard({ usuario }) {
     return () => unsub()
   }, [])
 
+  function limpiarForm() {
+    setCliente('')
+    setFecha('')
+    setEditandoId(null)
+  }
+
+  function cargarParaEditar(r) {
+    setCliente(r.cliente)
+    setFecha(r.fecha)
+    setEditandoId(r.id)
+    // Scroll al form para que se vea en móvil
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   async function guardar(e) {
     e.preventDefault()
     if (!cliente.trim() || !fecha) return
     setCargando(true)
     try {
-      await addDoc(collection(db, 'cierres'), {
-        cliente: cliente.trim(),
-        fecha,
-        creado: Date.now(),
-      })
-      setCliente('')
-      setFecha('')
+      if (editando) {
+        await updateDoc(doc(db, 'cierres', editandoId), {
+          cliente: cliente.trim(),
+          fecha,
+          modificado: Date.now(),
+          modificadoPor: usuario.email,
+        })
+      } else {
+        await addDoc(collection(db, 'cierres'), {
+          cliente: cliente.trim(),
+          fecha,
+          creado: Date.now(),
+          creadoPor: usuario.email,
+        })
+      }
+      limpiarForm()
     } finally {
       setCargando(false)
     }
   }
 
   async function eliminar(id) {
+    const r = registros.find((x) => x.id === id)
+    const nombre = r?.cliente || 'este registro'
+    if (!window.confirm(`¿Eliminar ${nombre}?`)) return
     await deleteDoc(doc(db, 'cierres', id))
+    if (editandoId === id) limpiarForm()
   }
 
   return (
@@ -101,9 +134,11 @@ function Dashboard({ usuario }) {
         </div>
       </header>
 
-      <form className="form" onSubmit={guardar}>
+      <form className={`form ${editando ? 'form--editando' : ''}`} onSubmit={guardar}>
         <div className="campo">
-          <label htmlFor="cliente">Cliente</label>
+          <label htmlFor="cliente">
+            Cliente {editando && <span className="hint">(editando)</span>}
+          </label>
           <input
             id="cliente"
             type="text"
@@ -123,9 +158,25 @@ function Dashboard({ usuario }) {
             required
           />
         </div>
-        <button type="submit" className="btn" disabled={cargando}>
-          {cargando ? 'Guardando…' : 'Agregar'}
-        </button>
+        <div className="form-acciones">
+          <button type="submit" className="btn" disabled={cargando}>
+            {cargando
+              ? 'Guardando…'
+              : editando
+              ? 'Actualizar'
+              : 'Agregar'}
+          </button>
+          {editando && (
+            <button
+              type="button"
+              className="btn-secundario"
+              onClick={limpiarForm}
+              disabled={cargando}
+            >
+              Cancelar
+            </button>
+          )}
+        </div>
       </form>
 
       <section className="tabla-wrap">
@@ -136,7 +187,7 @@ function Dashboard({ usuario }) {
               <th>Fecha</th>
               <th>Indicador</th>
               <th>Estatus</th>
-              <th></th>
+              <th className="col-acciones">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -149,8 +200,9 @@ function Dashboard({ usuario }) {
             )}
             {registros.map((r) => {
               const estado = estadoSemaforo(r.fecha)
+              const esFilaEditada = editandoId === r.id
               return (
-                <tr key={r.id}>
+                <tr key={r.id} className={esFilaEditada ? 'fila-editada' : ''}>
                   <td>{r.cliente}</td>
                   <td>{formatearFecha(r.fecha)}</td>
                   <td>
@@ -162,13 +214,27 @@ function Dashboard({ usuario }) {
                     </span>
                   </td>
                   <td>
-                    <button
-                      className="btn-eliminar"
-                      onClick={() => eliminar(r.id)}
-                      aria-label="Eliminar"
-                    >
-                      ×
-                    </button>
+                    <div className="acciones">
+                      <button
+                        className="btn-editar"
+                        onClick={() => cargarParaEditar(r)}
+                        aria-label="Editar"
+                        title="Editar"
+                      >
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                      </button>
+                      <button
+                        className="btn-eliminar"
+                        onClick={() => eliminar(r.id)}
+                        aria-label="Eliminar"
+                        title="Eliminar"
+                      >
+                        ×
+                      </button>
+                    </div>
                   </td>
                 </tr>
               )

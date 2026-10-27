@@ -151,6 +151,24 @@ body {
   padding: 20px;
   margin-bottom: 24px;
   box-shadow: var(--sombra);
+  transition: border-color 0.2s;
+}
+
+.form--editando {
+  border-color: #2563eb;
+  background: #f8faff;
+}
+
+.form-acciones {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hint {
+  color: #2563eb;
+  font-weight: 500;
+  font-size: 12px;
 }
 
 .campo {
@@ -198,6 +216,29 @@ body {
 }
 
 .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secundario {
+  padding: 10px 20px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  height: fit-content;
+}
+
+.btn-secundario:hover:not(:disabled) {
+  border-color: var(--muted);
+  color: var(--text);
+}
+
+.btn-secundario:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -313,7 +354,35 @@ body {
   color: #4b5563;
 }
 
-/* Botón eliminar */
+/* Acciones por fila */
+.col-acciones {
+  width: 100px;
+}
+
+.acciones {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.btn-editar {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.btn-editar:hover {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
 .btn-eliminar {
   background: transparent;
   border: none;
@@ -329,6 +398,24 @@ body {
 .btn-eliminar:hover {
   background: #fee2e2;
   color: var(--rojo);
+}
+
+.fila-editada {
+  background: #f8faff;
+}
+
+.fila-editada td {
+  position: relative;
+}
+
+.fila-editada td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #2563eb;
 }
 
 /* Footer */
