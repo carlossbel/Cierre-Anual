@@ -465,12 +465,12 @@ body {
 .chip--activo {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: var(--accent-text);
   transform: scale(1.02);
 }
 
 .chip--activo:hover {
-  color: #fff;
+  color: var(--accent-text);
   opacity: 0.9;
 }
 
@@ -485,11 +485,11 @@ body {
 }
 
 .chip--activo .chip-conteo {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 [data-theme='dark'] .chip--activo .chip-conteo {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 /* Tabla */
