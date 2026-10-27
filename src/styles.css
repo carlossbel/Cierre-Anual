@@ -1,16 +1,64 @@
 :root {
   --bg: #fafafa;
   --panel: #ffffff;
+  --panel-alt: #fafafa;
   --border: #e5e7eb;
   --text: #111827;
   --muted: #6b7280;
   --accent: #111827;
+  --accent-text: #ffffff;
   --verde: #16a34a;
   --amarillo: #eab308;
   --rojo: #dc2626;
   --gris: #9ca3af;
+  --edit-bg: #f8faff;
+  --edit-border: #2563eb;
+  --edit-hint: #2563eb;
+  --edit-hover-bg: #dbeafe;
+  --edit-hover-text: #2563eb;
+  --et-verde-bg: #dcfce7;
+  --et-verde-text: #15803d;
+  --et-amarillo-bg: #fef9c3;
+  --et-amarillo-text: #854d0e;
+  --et-rojo-bg: #fee2e2;
+  --et-rojo-text: #991b1b;
+  --et-gris-bg: #f3f4f6;
+  --et-gris-text: #4b5563;
+  --chip-conteo-bg: rgba(0, 0, 0, 0.06);
+  --th-bg: #fafafa;
   --radio: 8px;
   --sombra: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme='dark'] {
+  --bg: #0f1115;
+  --panel: #181b22;
+  --panel-alt: #1f232c;
+  --border: #2a2f3a;
+  --text: #e5e7eb;
+  --muted: #8b93a1;
+  --accent: #e5e7eb;
+  --accent-text: #0f1115;
+  --verde: #22c55e;
+  --amarillo: #facc15;
+  --rojo: #ef4444;
+  --gris: #6b7280;
+  --edit-bg: #1a2338;
+  --edit-border: #3b82f6;
+  --edit-hint: #60a5fa;
+  --edit-hover-bg: #1e3a5f;
+  --edit-hover-text: #93c5fd;
+  --et-verde-bg: rgba(34, 197, 94, 0.15);
+  --et-verde-text: #4ade80;
+  --et-amarillo-bg: rgba(250, 204, 21, 0.15);
+  --et-amarillo-text: #fde047;
+  --et-rojo-bg: rgba(239, 68, 68, 0.15);
+  --et-rojo-text: #fca5a5;
+  --et-gris-bg: rgba(107, 114, 128, 0.2);
+  --et-gris-text: #9ca3af;
+  --chip-conteo-bg: rgba(255, 255, 255, 0.1);
+  --th-bg: #1f232c;
+  --sombra: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -27,6 +75,7 @@ body {
     Ubuntu, Cantarell, sans-serif;
   font-size: 15px;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .app {
@@ -62,6 +111,40 @@ body {
   color: var(--muted);
 }
 
+.btn-tema {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-tema:hover {
+  color: var(--text);
+  border-color: var(--muted);
+  transform: translateY(-1px) rotate(15deg);
+}
+
+.btn-tema:active {
+  transform: translateY(0) scale(0.92) rotate(0deg);
+  transition: transform 0.08s ease-out;
+}
+
+.btn-tema svg {
+  transition: transform 0.3s ease;
+}
+
+.login-tema {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
 .btn-salir {
   background: transparent;
   border: 1px solid var(--border);
@@ -92,6 +175,7 @@ body {
   justify-content: center;
   padding: 24px;
   background: var(--bg);
+  position: relative;
 }
 
 .login-card {
@@ -123,8 +207,8 @@ body {
 }
 
 .error {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--et-rojo-bg);
+  color: var(--et-rojo-text);
   padding: 10px 12px;
   border-radius: 6px;
   font-size: 13px;
@@ -161,8 +245,8 @@ body {
 }
 
 .form--editando {
-  border-color: #2563eb;
-  background: #f8faff;
+  border-color: var(--edit-border);
+  background: var(--edit-bg);
 }
 
 .form-acciones {
@@ -172,7 +256,7 @@ body {
 }
 
 .hint {
-  color: #2563eb;
+  color: var(--edit-hint);
   font-weight: 500;
   font-size: 12px;
 }
@@ -194,10 +278,19 @@ body {
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 14px;
-  background: #fff;
+  background: var(--panel);
   color: var(--text);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, background-color 0.2s, color 0.2s;
+}
+
+.campo input::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+  cursor: pointer;
+}
+
+[data-theme='dark'] .campo input::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
 }
 
 .campo input:focus {
@@ -207,7 +300,7 @@ body {
 .btn {
   padding: 10px 20px;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-text);
   border: none;
   border-radius: 6px;
   font-size: 14px;
@@ -382,7 +475,7 @@ body {
 }
 
 .chip-conteo {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--chip-conteo-bg);
   padding: 1px 7px;
   border-radius: 999px;
   font-size: 11px;
@@ -392,7 +485,11 @@ body {
 }
 
 .chip--activo .chip-conteo {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme='dark'] .chip--activo .chip-conteo {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 /* Tabla */
@@ -418,7 +515,7 @@ body {
   letter-spacing: 0.05em;
   color: var(--muted);
   border-bottom: 1px solid var(--border);
-  background: #fafafa;
+  background: var(--th-bg);
 }
 
 .tabla td {
@@ -447,6 +544,11 @@ body {
   background: #1f2937;
   border-radius: 6px;
   width: fit-content;
+}
+
+[data-theme='dark'] .semaforo {
+  background: #0a0d13;
+  border: 1px solid #2a2f3a;
 }
 
 .luz {
@@ -497,23 +599,23 @@ body {
 }
 
 .etiqueta--verde {
-  background: #dcfce7;
-  color: #15803d;
+  background: var(--et-verde-bg);
+  color: var(--et-verde-text);
 }
 
 .etiqueta--amarillo {
-  background: #fef9c3;
-  color: #854d0e;
+  background: var(--et-amarillo-bg);
+  color: var(--et-amarillo-text);
 }
 
 .etiqueta--rojo {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--et-rojo-bg);
+  color: var(--et-rojo-text);
 }
 
 .etiqueta--gris {
-  background: #f3f4f6;
-  color: #4b5563;
+  background: var(--et-gris-bg);
+  color: var(--et-gris-text);
 }
 
 /* Fecha de pago */
@@ -527,15 +629,15 @@ body {
 }
 
 .fecha-pago--amarillo {
-  color: #854d0e;
-  background: #fef9c3;
+  color: var(--et-amarillo-text);
+  background: var(--et-amarillo-bg);
   padding: 2px 8px;
   border-radius: 4px;
 }
 
 .fecha-pago--rojo {
-  color: #991b1b;
-  background: #fee2e2;
+  color: var(--et-rojo-text);
+  background: var(--et-rojo-bg);
   padding: 2px 8px;
   border-radius: 4px;
   font-weight: 600;
@@ -574,8 +676,8 @@ body {
 }
 
 .btn-editar:hover {
-  background: #dbeafe;
-  color: #2563eb;
+  background: var(--edit-hover-bg);
+  color: var(--edit-hover-text);
   transform: scale(1.1) rotate(-6deg);
 }
 
@@ -597,7 +699,7 @@ body {
 }
 
 .btn-eliminar:hover {
-  background: #fee2e2;
+  background: var(--et-rojo-bg);
   color: var(--rojo);
   transform: scale(1.15) rotate(90deg);
 }
@@ -608,7 +710,7 @@ body {
 }
 
 .fila-editada {
-  background: #f8faff;
+  background: var(--edit-bg);
 }
 
 .fila-editada td {
@@ -622,7 +724,7 @@ body {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: #2563eb;
+  background: var(--edit-border);
 }
 
 /* Footer */

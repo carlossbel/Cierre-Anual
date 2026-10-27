@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from './firebase'
+import BotonTema from './BotonTema'
 
-export default function Login() {
+export default function Login({ tema, onAlternarTema }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -32,6 +33,11 @@ export default function Login() {
 
   return (
     <div className="login">
+      {onAlternarTema && (
+        <div className="login-tema">
+          <BotonTema tema={tema} onClick={onAlternarTema} />
+        </div>
+      )}
       <form className="login-card" onSubmit={entrar}>
         <h1>Cierre Anual</h1>
         <p className="login-sub">Acceso de administrador</p>

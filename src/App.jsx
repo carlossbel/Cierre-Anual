@@ -12,6 +12,7 @@ import {
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { db, auth } from './firebase'
 import Login from './Login'
+import BotonTema from './BotonTema'
 
 // Días que faltan para que la fecha se considere "próxima"
 const DIAS_PROXIMO = 7
@@ -51,7 +52,7 @@ function Semaforo({ color }) {
   )
 }
 
-function Dashboard({ usuario }) {
+function Dashboard({ usuario, tema, onAlternarTema }) {
   const [cliente, setCliente] = useState('')
   const [fecha, setFecha] = useState('')
   const [pago, setPago] = useState('')
@@ -156,6 +157,7 @@ function Dashboard({ usuario }) {
         </div>
         <div className="user-info">
           <span className="user-email">{usuario.email}</span>
+          <BotonTema tema={tema} onClick={onAlternarTema} />
           <button className="btn-salir" onClick={() => signOut(auth)}>
             Salir
           </button>
@@ -360,9 +362,29 @@ function Dashboard({ usuario }) {
   )
 }
 
+const TEMA_KEY = 'cierre-anual:tema'
+
+function obtenerTemaInicial() {
+  if (typeof window === 'undefined') return 'light'
+  try {
+    const guardado = localStorage.getItem(TEMA_KEY)
+    if (guardado === 'light' || guardado === 'dark') return guardado
+  } catch {}
+  if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark'
+  return 'light'
+}
+
 export default function App() {
   const [usuario, setUsuario] = useState(null)
   const [verificando, setVerificando] = useState(true)
+  const [tema, setTema] = useState(obtenerTemaInicial)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = tema
+    try {
+      localStorage.setItem(TEMA_KEY, tema)
+    } catch {}
+  }, [tema])
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -372,13 +394,19 @@ export default function App() {
     return () => unsub()
   }, [])
 
+  function alternarTema() {
+    setTema((t) => (t === 'dark' ? 'light' : 'dark'))
+  }
+
   if (verificando) {
     return <div className="verificando">Cargando…</div>
   }
 
   if (!usuario) {
-    return <Login />
+    return <Login tema={tema} onAlternarTema={alternarTema} />
   }
 
-  return <Dashboard usuario={usuario} />
+  return (
+    <Dashboard usuario={usuario} tema={tema} onAlternarTema={alternarTema} />
+  )
 }
