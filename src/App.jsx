@@ -57,8 +57,31 @@ function Dashboard({ usuario }) {
   const [editandoId, setEditandoId] = useState(null)
   const [registros, setRegistros] = useState([])
   const [cargando, setCargando] = useState(false)
+  const [busqueda, setBusqueda] = useState('')
+  const [filtroEstatus, setFiltroEstatus] = useState('todos')
 
   const editando = editandoId !== null
+
+  const registrosFiltrados = registros.filter((r) => {
+    const coincideBusqueda = r.cliente
+      .toLowerCase()
+      .includes(busqueda.trim().toLowerCase())
+    if (!coincideBusqueda) return false
+    if (filtroEstatus === 'todos') return true
+    const estado = estadoSemaforo(r.fecha)
+    return estado.color === filtroEstatus
+  })
+
+  const conteos = {
+    todos: registros.length,
+    verde: 0,
+    amarillo: 0,
+    rojo: 0,
+  }
+  registros.forEach((r) => {
+    const c = estadoSemaforo(r.fecha).color
+    if (c === 'verde' || c === 'amarillo' || c === 'rojo') conteos[c]++
+  })
 
   useEffect(() => {
     const q = query(collection(db, 'cierres'), orderBy('fecha', 'asc'))
@@ -179,6 +202,64 @@ function Dashboard({ usuario }) {
         </div>
       </form>
 
+      <div className="controles">
+        <div className="buscador">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="search"
+            placeholder="Buscar cliente…"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+          {busqueda && (
+            <button
+              type="button"
+              className="btn-limpiar-busqueda"
+              onClick={() => setBusqueda('')}
+              aria-label="Limpiar búsqueda"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <div className="filtros">
+          <button
+            type="button"
+            className={`chip ${filtroEstatus === 'todos' ? 'chip--activo' : ''}`}
+            onClick={() => setFiltroEstatus('todos')}
+          >
+            Todos <span className="chip-conteo">{conteos.todos}</span>
+          </button>
+          <button
+            type="button"
+            className={`chip chip--verde ${filtroEstatus === 'verde' ? 'chip--activo' : ''}`}
+            onClick={() => setFiltroEstatus('verde')}
+          >
+            <span className="punto punto--verde"></span>
+            Aún no cierra <span className="chip-conteo">{conteos.verde}</span>
+          </button>
+          <button
+            type="button"
+            className={`chip chip--amarillo ${filtroEstatus === 'amarillo' ? 'chip--activo' : ''}`}
+            onClick={() => setFiltroEstatus('amarillo')}
+          >
+            <span className="punto punto--amarillo"></span>
+            Próximo <span className="chip-conteo">{conteos.amarillo}</span>
+          </button>
+          <button
+            type="button"
+            className={`chip chip--rojo ${filtroEstatus === 'rojo' ? 'chip--activo' : ''}`}
+            onClick={() => setFiltroEstatus('rojo')}
+          >
+            <span className="punto punto--rojo"></span>
+            En cierre <span className="chip-conteo">{conteos.rojo}</span>
+          </button>
+        </div>
+      </div>
+
       <section className="tabla-wrap">
         <table className="tabla">
           <thead>
@@ -198,7 +279,14 @@ function Dashboard({ usuario }) {
                 </td>
               </tr>
             )}
-            {registros.map((r) => {
+            {registros.length > 0 && registrosFiltrados.length === 0 && (
+              <tr>
+                <td colSpan={5} className="vacio">
+                  Sin resultados para los filtros aplicados.
+                </td>
+              </tr>
+            )}
+            {registrosFiltrados.map((r) => {
               const estado = estadoSemaforo(r.fecha)
               const esFilaEditada = editandoId === r.id
               return (
