@@ -8,7 +8,9 @@ import {
   query,
   orderBy,
 } from 'firebase/firestore'
-import { db } from './firebase'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
+import { db, auth } from './firebase'
+import Login from './Login'
 
 // Días que faltan para que la fecha se considere "próxima"
 const DIAS_PROXIMO = 7
@@ -48,7 +50,7 @@ function Semaforo({ color }) {
   )
 }
 
-export default function App() {
+function Dashboard({ usuario }) {
   const [cliente, setCliente] = useState('')
   const [fecha, setFecha] = useState('')
   const [registros, setRegistros] = useState([])
@@ -87,8 +89,16 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>Cierre Anual</h1>
-        <p className="sub">Control de fechas de cierre por cliente</p>
+        <div>
+          <h1>Cierre Anual</h1>
+          <p className="sub">Control de fechas de cierre por cliente</p>
+        </div>
+        <div className="user-info">
+          <span className="user-email">{usuario.email}</span>
+          <button className="btn-salir" onClick={() => signOut(auth)}>
+            Salir
+          </button>
+        </div>
       </header>
 
       <form className="form" onSubmit={guardar}>
@@ -176,4 +186,27 @@ export default function App() {
       </footer>
     </div>
   )
+}
+
+export default function App() {
+  const [usuario, setUsuario] = useState(null)
+  const [verificando, setVerificando] = useState(true)
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUsuario(u)
+      setVerificando(false)
+    })
+    return () => unsub()
+  }, [])
+
+  if (verificando) {
+    return <div className="verificando">Cargando…</div>
+  }
+
+  if (!usuario) {
+    return <Login />
+  }
+
+  return <Dashboard usuario={usuario} />
 }

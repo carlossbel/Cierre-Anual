@@ -40,3 +40,22 @@ Los registros se guardan en la colección `cierres` con la forma:
   creado: number
 }
 ```
+
+## Autenticación
+
+Acceso restringido a administrador mediante Firebase Auth (correo + contraseña).
+
+1. Firebase Console → **Authentication → Sign-in method** → habilitar **Email/Password**.
+2. **Authentication → Users → Add user** y crear la cuenta del admin.
+3. Reglas de Firestore recomendadas:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /cierres/{doc} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
