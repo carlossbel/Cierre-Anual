@@ -148,7 +148,7 @@ body {
 /* Form */
 .form {
   display: grid;
-  grid-template-columns: 1fr 200px auto;
+  grid-template-columns: 1fr 180px 180px auto;
   gap: 12px;
   align-items: end;
   background: var(--panel);
@@ -516,6 +516,39 @@ body {
   color: #4b5563;
 }
 
+/* Fecha de pago */
+.fecha-pago {
+  display: inline-block;
+  font-weight: 500;
+}
+
+.fecha-pago--verde {
+  color: var(--text);
+}
+
+.fecha-pago--amarillo {
+  color: #854d0e;
+  background: #fef9c3;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.fecha-pago--rojo {
+  color: #991b1b;
+  background: #fee2e2;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.fecha-pago--gris {
+  color: var(--muted);
+}
+
+.dash {
+  color: var(--muted);
+}
+
 /* Acciones por fila */
 .col-acciones {
   width: 100px;
@@ -631,6 +664,16 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 900px) {
+  .form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .form-acciones {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (max-width: 640px) {
   .app {
     padding: 24px 16px;
@@ -638,6 +681,10 @@ body {
 
   .form {
     grid-template-columns: 1fr;
+  }
+
+  .form-acciones {
+    grid-column: auto;
   }
 
   .tabla th,

@@ -54,6 +54,7 @@ function Semaforo({ color }) {
 function Dashboard({ usuario }) {
   const [cliente, setCliente] = useState('')
   const [fecha, setFecha] = useState('')
+  const [pago, setPago] = useState('')
   const [editandoId, setEditandoId] = useState(null)
   const [registros, setRegistros] = useState([])
   const [cargando, setCargando] = useState(false)
@@ -95,12 +96,14 @@ function Dashboard({ usuario }) {
   function limpiarForm() {
     setCliente('')
     setFecha('')
+    setPago('')
     setEditandoId(null)
   }
 
   function cargarParaEditar(r) {
     setCliente(r.cliente)
     setFecha(r.fecha)
+    setPago(r.pago || '')
     setEditandoId(r.id)
     // Scroll al form para que se vea en móvil
     if (typeof window !== 'undefined') {
@@ -117,6 +120,7 @@ function Dashboard({ usuario }) {
         await updateDoc(doc(db, 'cierres', editandoId), {
           cliente: cliente.trim(),
           fecha,
+          pago: pago || null,
           modificado: Date.now(),
           modificadoPor: usuario.email,
         })
@@ -124,6 +128,7 @@ function Dashboard({ usuario }) {
         await addDoc(collection(db, 'cierres'), {
           cliente: cliente.trim(),
           fecha,
+          pago: pago || null,
           creado: Date.now(),
           creadoPor: usuario.email,
         })
@@ -172,13 +177,22 @@ function Dashboard({ usuario }) {
           />
         </div>
         <div className="campo">
-          <label htmlFor="fecha">Fecha</label>
+          <label htmlFor="fecha">Fecha de cierre</label>
           <input
             id="fecha"
             type="date"
             value={fecha}
             onChange={(e) => setFecha(e.target.value)}
             required
+          />
+        </div>
+        <div className="campo">
+          <label htmlFor="pago">Último día de pago</label>
+          <input
+            id="pago"
+            type="date"
+            value={pago}
+            onChange={(e) => setPago(e.target.value)}
           />
         </div>
         <div className="form-acciones">
@@ -265,7 +279,8 @@ function Dashboard({ usuario }) {
           <thead>
             <tr>
               <th>Cliente</th>
-              <th>Fecha</th>
+              <th>Fecha de cierre</th>
+              <th>Último día de pago</th>
               <th>Indicador</th>
               <th>Estatus</th>
               <th className="col-acciones">Acciones</th>
@@ -274,25 +289,35 @@ function Dashboard({ usuario }) {
           <tbody>
             {registros.length === 0 && (
               <tr>
-                <td colSpan={5} className="vacio">
+                <td colSpan={6} className="vacio">
                   Sin registros aún.
                 </td>
               </tr>
             )}
             {registros.length > 0 && registrosFiltrados.length === 0 && (
               <tr>
-                <td colSpan={5} className="vacio">
+                <td colSpan={6} className="vacio">
                   Sin resultados para los filtros aplicados.
                 </td>
               </tr>
             )}
             {registrosFiltrados.map((r) => {
               const estado = estadoSemaforo(r.fecha)
+              const estadoPago = estadoSemaforo(r.pago)
               const esFilaEditada = editandoId === r.id
               return (
                 <tr key={r.id} className={esFilaEditada ? 'fila-editada' : ''}>
                   <td>{r.cliente}</td>
                   <td>{formatearFecha(r.fecha)}</td>
+                  <td>
+                    {r.pago ? (
+                      <span className={`fecha-pago fecha-pago--${estadoPago.color}`}>
+                        {formatearFecha(r.pago)}
+                      </span>
+                    ) : (
+                      <span className="dash">—</span>
+                    )}
+                  </td>
                   <td>
                     <Semaforo color={estado.color} />
                   </td>
